@@ -1,6 +1,7 @@
 import argparse
 from pathlib import Path
 from app.chunking import chunk_text
+from app.storage import save_chunks
 
 def cmd_ingest(args: argparse.Namespace) -> None:
     file_path = Path(args.path)
@@ -13,13 +14,17 @@ def cmd_ingest(args: argparse.Namespace) -> None:
         with file_path.open("r", encoding="utf-8") as f:
             content = f.read()
         
-        print(f"[ingest] successfully loaded file: {file_path}")
-        print(f"[ingest] Characters loaded: {len(content)}")
-        print("[ingest] Preview:")
-        print(content[:200])
-        chunk_text(content, 800, 120)
+        chunks = chunk_text(content, chunk_size = 800, overlap = 120)
+        
+        print(f"[ingest] Loaded : {file_path}")
+        print(f"[ingest] Characters : {len(content)}")
+        print(f"[ingest] Chunks created : {len(chunks)}")
+        if chunks:
+            print("[ingest] First chunk preview : ")
+            print(chunks[0][:300])
 
-
+        save_chunks(args.path, chunks)
+        
     except Exception as e:
         print(f"[ingest] Error reading file: {e}")
 
