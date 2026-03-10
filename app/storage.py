@@ -40,6 +40,11 @@ def save_chunks(file_path: str, chunks: list[str]) -> None:
         print(f"[storage] Updated existing document: {file_path}")
     else:
         data["documents"].append(document_record)
-        print(f"[storage] dded new document: {file_path}")
+        print(f"[storage] Added new document: {file_path}")
     
     save_index(data)
+
+
+def get_documents() -> list[dict]:
+    data = load_index()
+    return data.get("documents", [])
