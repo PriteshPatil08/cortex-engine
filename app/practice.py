@@ -1,7 +1,6 @@
-from pathlib import Path
+import re
 
-file = Path("poem.txt")
-file.write_text("Twinkle Twinkle Little Stars!!!")
+def tokenize(text: str) -> list[str]:
+    return re.findall(r"\w+", text.lower())
 
-content = file.read_text()
-print(content)
+print(tokenize("I am Pritesh, a student."))
