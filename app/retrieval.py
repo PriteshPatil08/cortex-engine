@@ -24,3 +24,25 @@ def find_best_chunk(documents: list[dict], question: str) -> tuple[str | None, s
                 best_score = score
 
     return best_source, best_chunk, best_score
+
+
+def search(documents: list[dict], question: str, top_k: int = 3) -> list[dict]:
+    query_terms = tokenize(question)    
+    results = []
+
+    for document in documents:
+        source = document["source"]
+        for chunk in document["chunks"]:
+            score = score_chunk(chunk, query_terms)
+            if score > 0:
+                results.append(
+                    {
+                        "source": source, 
+                        "chunk": chunk, 
+                        "score": score
+                    }
+                )
+
+    results.sort(key = lambda x : x["score"], reverse = True)
+
+    return results[:top_k]

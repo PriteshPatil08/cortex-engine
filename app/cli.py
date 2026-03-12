@@ -2,7 +2,7 @@ import argparse
 from pathlib import Path
 
 from app.chunking import chunk_text
-from app.retrieval import find_best_chunk
+from app.retrieval import find_best_chunk, search
 from app.storage import get_documents, save_chunks
 
 def cmd_ingest(args: argparse.Namespace) -> None:
@@ -38,19 +38,21 @@ def cmd_ask(args: argparse.Namespace) -> None:
     if not documents:
         print(f"[ask] No indexed documents found. Please ingest a file first.")
         return
+    
+    results = search(documents = get_documents(), question = args.question, top_k = 3)
 
-    source, chunk, score = find_best_chunk(documents, args.question)
-
-    print(f"[ask] Question : {args.question}")
-
-    if not chunk:
-        print(f"No relevant result found.")
+    if not results:
+        print(f"No relevant results found.")
         return
 
-    print(f"[ask] Best match score : {score}")
-    print(f"[ask] Source: {source}")
-    print(f"[ask] Answer preview:")
-    print(chunk[:500])
+    print(f"[ask] Top {len(results)} Matches:\n")
+
+    for i, result in enumerate(results, start = 1):
+        print(f"Result {i}")
+        print(f"Source: {result['source']}")
+        print(f"Score : {result['score']}")
+        print(f"Chunk : {result["chunk"][:300]}")
+        print("-" * 40)
 
 
 def build_parser() -> argparse.ArgumentParser:

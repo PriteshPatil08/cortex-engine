@@ -1,6 +1,13 @@
-import re
+data = {
+    "documents": [
+        {"source": "test1.txt"},
+        {"source": "test2.txt"},
+        {"source": "test3.txt"}
+    ]
+}
 
-def tokenize(text: str) -> list[str]:
-    return re.findall(r"\w+", text.lower())
 
-print(tokenize("I am Pritesh, a student."))
+
+for i, doc in enumerate(data["documents"]):
+    print(i)
+    print(doc)
