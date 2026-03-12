@@ -2,7 +2,7 @@ import argparse
 from pathlib import Path
 
 from app.chunking import chunk_text
-from app.retrieval import find_best_chunk, search
+from app.retrieval import find_best_chunk, search, build_context
 from app.storage import get_documents, save_chunks
 
 def cmd_ingest(args: argparse.Namespace) -> None:
@@ -44,16 +44,16 @@ def cmd_ask(args: argparse.Namespace) -> None:
     if not results:
         print(f"No relevant results found.")
         return
-
+    
     print(f"[ask] Top {len(results)} Matches:\n")
 
-    for i, result in enumerate(results, start = 1):
-        print(f"Result {i}")
-        print(f"Source: {result['source']}")
-        print(f"Score : {result['score']}")
-        print(f"Chunk : {result["chunk"][:300]}")
-        print("-" * 40)
+    context = build_context(results=results, max_chars = 1200)
 
+    if context:
+        print(f"[ask] Context Block: ")
+        print("-" * 70)
+        print(context)
+        print("-" * 70)
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(

@@ -46,3 +46,23 @@ def search(documents: list[dict], question: str, top_k: int = 3) -> list[dict]:
     results.sort(key = lambda x : x["score"], reverse = True)
 
     return results[:top_k]
+
+def build_context(results: list[dict], max_chars: int = 1200) -> str :
+    context_parts_formatted = []
+    context_chars_so_far = 0
+
+    for result in results:
+        source = result["source"]
+        chunk = result["chunk"]
+
+        formatted = f"[Source: {source}]\n{chunk}\n"
+
+        if context_chars_so_far + len(formatted) > max_chars:
+            remaining_chars = max_chars - context_chars_so_far
+            context_parts_formatted.append(formatted[:remaining_chars])
+            break
+
+        context_parts_formatted.append(formatted)
+        context_chars_so_far += len(formatted)
+
+    return "\n".join(context_parts_formatted)
