@@ -20,8 +20,8 @@ def save_index(data: dict) -> None:
     print(f"[storage] Index saved to {INDEX_PATH}")
 
 
-def save_chunks(file_path: str, chunks: list[str]) -> None:
-    INDEX_PATH.parent.mdkir(exit_ok=True)
+def save_chunks(file_path: str, chunks: list[dict]) -> None:
+    INDEX_PATH.parent.mkdir(exist_ok=True)
 
     data = load_index()
 
@@ -36,7 +36,7 @@ def save_chunks(file_path: str, chunks: list[str]) -> None:
     )
 
     if existing_index is not None:
-        data["document"][existing_index] = document_record
+        data["documents"][existing_index] = document_record
         print(f"[storage] Updated existing document: {file_path}")
     else:
         data["documents"].append(document_record)

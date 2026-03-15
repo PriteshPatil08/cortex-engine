@@ -4,6 +4,7 @@ from pathlib import Path
 from app.chunking import chunk_text
 from app.retrieval import find_best_chunk, search, build_context
 from app.storage import get_documents, save_chunks
+from app.embeddings import embed_text
 
 def cmd_ingest(args: argparse.Namespace) -> None:
     file_path = Path(args.path)
@@ -17,6 +18,8 @@ def cmd_ingest(args: argparse.Namespace) -> None:
             content = f.read()
         
         chunks = chunk_text(content, chunk_size = 800, overlap = 120)
+
+        chunks_embeddings : list[dict] = []
         
         print(f"[ingest] Loaded : {file_path}")
         print(f"[ingest] Characters : {len(content)}")
@@ -25,8 +28,13 @@ def cmd_ingest(args: argparse.Namespace) -> None:
         if chunks:
             print("[ingest] First chunk preview : ")
             print(chunks[0][:300])
+            
+            for chunk in chunks:
+                embedding = embed_text(chunk, 8)
+                if embedding is not None:
+                    chunks_embeddings.append({"text": chunk, "embedding": embedding})
 
-        save_chunks(args.path, chunks)
+        save_chunks(args.path, chunks_embeddings)
         
     except Exception as e:
         print(f"[ingest] Error reading file: {e}")
