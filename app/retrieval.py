@@ -1,11 +1,24 @@
 import re
+from app.embeddings import embed_text
+import math
+
+def dot_product(a: list[float], b: list[float]) -> float:
+    return sum(x * y for x, y in zip(a, b))
+    
+def vector_norm(vector: list[float]) -> float:
+    return math.sqrt(sum(x * x for x in vector))
+
+def cosine_similarity(a: list[float], b: list[float]) -> float:
+    return dot_product(a, b)/(vector_norm(a) * vector_norm(b))
+
 
 def tokenize(text: str) -> list[str]:
     return re.findall(r"\w+", text.lower())
 
-def score_chunk(chunk: str, query_terms: list[str]) -> int:
-    chunk_terms = tokenize(chunk)
-    return sum(chunk_terms.count(term) for term in query_terms)
+def score_chunk(chunk: dict, question: str) -> int:
+    question_embedding = embed_text(question)
+
+    return cosine_similarity(chunk["embedding"], question_embedding)
 
 def find_best_chunk(documents: list[dict], question: str) -> tuple[str | None, str | None, int]:
     query_terms = tokenize(question)
@@ -26,14 +39,13 @@ def find_best_chunk(documents: list[dict], question: str) -> tuple[str | None, s
     return best_source, best_chunk, best_score
 
 
-def search(documents: list[dict], question: str, top_k: int = 3) -> list[dict]:
-    query_terms = tokenize(question)    
+def search(documents: list[dict], question: str, top_k: int = 3) -> list[dict]:    
     results = []
 
     for document in documents:
         source = document["source"]
         for chunk in document["chunks"]:
-            score = score_chunk(chunk["text"], query_terms)
+            score = score_chunk(chunk, question)
             if score > 0:
                 results.append(
                     {

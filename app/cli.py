@@ -53,7 +53,7 @@ def cmd_ask(args: argparse.Namespace) -> None:
         print(f"No relevant results found.")
         return
     
-    print(f"[ask] Top {len(results)} Matches:\n")
+    print(f"[ask] Top {len(results)} semantic Matches:\n")
 
     context = build_context(results=results, max_chars = 1200)
 
@@ -62,6 +62,7 @@ def cmd_ask(args: argparse.Namespace) -> None:
         print("-" * 70)
         print(context)
         print("-" * 70)
+
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
@@ -80,6 +81,7 @@ def build_parser() -> argparse.ArgumentParser:
     ask.set_defaults(func=cmd_ask)
 
     return parser
+
 
 def main(argv: list[str] | None = None) -> None:
     parser = build_parser()
