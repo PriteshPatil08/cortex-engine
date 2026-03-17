@@ -2,7 +2,7 @@ import argparse
 from pathlib import Path
 
 from app.chunking import chunk_text
-from app.retrieval import find_best_chunk, search, build_context
+from app.retrieval import (keyword_search, semantic_search, build_context)
 from app.storage import get_documents, save_chunks
 from app.embeddings import embed_text
 
@@ -47,13 +47,18 @@ def cmd_ask(args: argparse.Namespace) -> None:
         print(f"[ask] No indexed documents found. Please ingest a file first.")
         return
     
-    results = search(documents = get_documents(), question = args.question, top_k = 3)
+    if args.mode == "keyword":
+        results = keyword_search(documents = get_documents(), question = args.question, top_k = 3)
+    elif args.mode == "semantic":
+        results = semantic_search(documents = get_documents(), question = args.question, top_k = 3)
+    else:
+        raise ValueError("Invalid mode")
 
     if not results:
         print(f"No relevant results found.")
         return
     
-    print(f"[ask] Top {len(results)} semantic Matches:\n")
+    print(f"[ask] Top {len(results)} {args.mode} search matches:\n")
 
     context = build_context(results=results, max_chars = 1200)
 
@@ -78,6 +83,11 @@ def build_parser() -> argparse.ArgumentParser:
 
     ask = subparsers.add_parser("ask", help = "Ask a question against ingested documents")
     ask.add_argument("question", help = "The question to ask")
+    ask.add_argument("--mode", 
+                     choices = ["keyword", "semantic"],
+                     default = "keyword",
+                     help = "Retrieval mode: keyword or semantic")
+    
     ask.set_defaults(func=cmd_ask)
 
     return parser
