@@ -47,10 +47,13 @@ def cmd_ask(args: argparse.Namespace) -> None:
         print(f"[ask] No indexed documents found. Please ingest a file first.")
         return
     
+    if args.top_k <1:
+        raise ValueError("[ask] --top-k must be at least 1.")
+    
     if args.mode == "keyword":
-        results = keyword_search(documents = get_documents(), question = args.question, top_k = 3)
+        results = keyword_search(documents = get_documents(), question = args.question, top_k = args.top_k)
     elif args.mode == "semantic":
-        results = semantic_search(documents = get_documents(), question = args.question, top_k = 3)
+        results = semantic_search(documents = get_documents(), question = args.question, top_k = args.top_k)
     else:
         raise ValueError("Invalid mode")
 
@@ -87,6 +90,10 @@ def build_parser() -> argparse.ArgumentParser:
                      choices = ["keyword", "semantic"],
                      default = "keyword",
                      help = "Retrieval mode: keyword or semantic")
+    ask.add_argument("--top-k", 
+                     type = int, 
+                     default="3", 
+                     help = "Number of top matching chunks to return (default = 3)")
     
     ask.set_defaults(func=cmd_ask)
 
