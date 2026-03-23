@@ -50,6 +50,9 @@ def cmd_ask(args: argparse.Namespace) -> None:
     if args.top_k <1:
         raise ValueError("[ask] --top-k must be at least 1.")
     
+    if args.max_chars < 1:
+        raise ValueError("[ask] --max-chars must be at least 1.")
+    
     if args.mode == "keyword":
         results = keyword_search(documents = get_documents(), question = args.question, top_k = args.top_k)
     elif args.mode == "semantic":
@@ -63,7 +66,7 @@ def cmd_ask(args: argparse.Namespace) -> None:
     
     print(f"[ask] Top {len(results)} {args.mode} search matches:\n")
 
-    context = build_context(results=results, max_chars = 1200)
+    context = build_context(results=results, max_chars = args.max_chars)
 
     if context:
         print(f"[ask] Context Block: ")
@@ -94,6 +97,11 @@ def build_parser() -> argparse.ArgumentParser:
                      type = int, 
                      default="3", 
                      help = "Number of top matching chunks to return (default = 3)")
+    
+    ask.add_argument("--max-chars", 
+                     type = int,
+                     default = 1200,
+                     help = "Maximum number of characters allowed in final context block")
     
     ask.set_defaults(func=cmd_ask)
 
